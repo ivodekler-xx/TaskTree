@@ -104,8 +104,9 @@ $(document).on('ready', function(){
 	var amt = 0;
 	setInterval(function(){
 		amt++;
-		$('#fps').html(sys.fps());
-		if(amt%2) addConnectedNode(Math.floor(width/2),Math.floor(height/2));
+		var fps = sys.fps();
+		$('#fps').html(fps);
+		if(amt%2 && fps > 8) addConnectedNode(Math.floor(width/2),Math.floor(height/2));
 	}, 1000);
 	setTimeout(function(){
 		if($('#fps').html() == 'Infinity') location.reload();
