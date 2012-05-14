@@ -45,3 +45,5 @@ function compareArrays(arr1, arr2, power){
 	}
 	return returnVal;
 }
+
+Color.prototype.toJSON = function(){ return this.toRGBAString(); }

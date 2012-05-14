@@ -5,7 +5,7 @@ var $canvas = $('canvas'),
 			replusion: 2000
 		}),
 		width, height,
-		bgnd = new Color({r: 255, g: 255, b: 255, a: 0.05}),
+		bgnd = new Color({r: 0, g: 0, b: 0, a: 0.05}),
 		bgndString = bgnd.toRGBAString();
 
 function resize(){
@@ -19,14 +19,9 @@ resize();
 
 var myRenderer = {
 	init: function(){
-		ctx.strokeStyle = '#000000';
-		ctx.fillStyle = '#FF0000';
 		ctx.lineWidth = 1;
-		ctx.beginPath();
-		ctx.arc(100,100, 100, 0, 2*Math.PI, true);
-		ctx.closePath();
-		ctx.stroke();
-		console.log('reached end of init');
+		ctx.fillStyle = bgnd.toRGBString();
+		ctx.fillRect(0,0,width,height);
 	},
 	redraw: function(){
 		ctx.save();
