@@ -101,6 +101,19 @@ function networkN(n){
 	}, 100);
 }
 
+function Family(options){
+	this.options = $.extend({
+		maxSize: 50,
+		
+	}, options || {});
+	this.nodes = [];
+	this.edges = [];
+}
+
+Family.prototype.spawn = function(node){
+	
+}
+
 $(document).on('ready', function(){
 	networkN(Math.ceil(Math.random()*25));
 	var amt = 0;
