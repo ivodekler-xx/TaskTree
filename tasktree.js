@@ -1,11 +1,13 @@
 var $canvas = $('canvas'),
 		ctx = $canvas[0].getContext('2d'),
 		sys = arbor.ParticleSystem({
-			precision: 0,
-			replusion: 2000
+			precision: 5,
+			repulsion: 1,
+			stiffness: 100,
+			friction: 0.2
 		}),
 		width, height,
-		bgnd = new Color({r: 0, g: 0, b: 0, a: 0.05}),
+		bgnd = new Color({r: 0, g: 0, b: 0, a: 0.01}),
 		bgndString = bgnd.toRGBAString(),
 		$window = $(window),
 		framesRendered = 0;
@@ -22,7 +24,7 @@ resize();
 var myRenderer = {
 	init: function(){
 		ctx.lineWidth = 1;
-		ctx.fillStyle = bgnd.toRGBString();
+		ctx.fillStyle = new Color({r: 255, g: 255, b: 255}).toRGBString();
 		ctx.fillRect(0,0,width,height);
 	},
 	redraw: function(){
