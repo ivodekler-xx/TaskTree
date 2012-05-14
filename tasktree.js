@@ -5,7 +5,7 @@ var $canvas = $('canvas'),
 			replusion: 2000
 		}),
 		width, height,
-		bgnd = new Color({r: 0, g: 0, b: 0, a: 0.005}),
+		bgnd = new Color({r: 0, g: 0, b: 0, a: 0.05}),
 		bgndString = bgnd.toRGBAString(),
 		$window = $(window),
 		framesRendered = 0;
