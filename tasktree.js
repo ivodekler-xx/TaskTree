@@ -5,8 +5,10 @@ var $canvas = $('canvas'),
 			replusion: 2000
 		}),
 		width, height,
-		bgnd = new Color({r: 0, g: 0, b: 0, a: 0.05}),
-		bgndString = bgnd.toRGBAString();
+		bgnd = new Color({r: 0, g: 0, b: 0, a: 0.005}),
+		bgndString = bgnd.toRGBAString(),
+		$window = $(window),
+		framesRendered = 0;
 
 function resize(){
 	width = $canvas.parent().width();
@@ -59,26 +61,30 @@ $(document).on('click', function(e){
 });
 
 function addConnectedNode(x, y){
-	nodes.push(
-		sys.addNode(
-			'p' + new Date().getTime(),
-			{
-				x: x,
-				y: y,
-				mass: (Math.random() * 100) + 10,
-				color: new Color().randomize()
-			}
-		)
+	var node = sys.addNode(
+		'p' + new Date().getTime(),
+		{
+			x: x,
+			y: y,
+			mass: (Math.random() * 100) + 10,
+			color: new Color().randomize()
+		}
 	);
-	var i = 0, len = nodes.length - 1,
+	nodes.push(node);
+	
+	$window.trigger('NodeCreated', node);
+	var i = 0, len = nodes.length - 1, newEdges = [],
 			toNode = nodes[len], fromNode, length, color;
 	while(i < len){
 		fromNode = nodes[i];
 		length = compareArrays(fromNode.data.color.toArray(), toNode.data.color.toArray(), 1);
 		color = fromNode.data.color.averageWith(toNode.data.color);
-		edges.push( sys.addEdge(fromNode, toNode, { length: length , color: color }) );
+		var edge = sys.addEdge(fromNode, toNode, { length: length , color: color });
+		newEdges.push(edge)
+		edges.push(edge);
 		i++;
 	}
+	$window.trigger('EdgeCreated', newEdges);
 }
 
 function networkN(n){
@@ -93,4 +99,23 @@ function networkN(n){
 	}, 100);
 }
 
-$(document).on('ready', function(){ networkN(50); })
+$(document).on('ready', function(){
+	networkN(Math.ceil(Math.random()*25));
+	var amt = 0;
+	setInterval(function(){
+		amt++;
+		$('#fps').html(sys.fps());
+		if(amt%2) addConnectedNode(Math.floor(width/2),Math.floor(height/2));
+	}, 1000);
+	setTimeout(function(){
+		if($('#fps').html() == 'Infinity') location.reload();
+	}, 100);
+});
+
+$window.on('NodeCreated', function(){
+	$('#numNodes').html(nodes.length);
+});
+
+$window.on('EdgeCreated', function(){
+	$('#numEdges').html(edges.length);
+});
