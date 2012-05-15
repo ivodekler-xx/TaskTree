@@ -1,3 +1,44 @@
+
+var $window = $(window),
+		$document = $(document),
+		$body = $(document.body);
+
+function NodeSystem(options){
+	var NS = this;
+	NS.options = $.extend({
+		systemParams: {},
+		renderer: 'default',
+		renderOptions: {}
+	}, options || {});
+	NS.sys = arbor.ParticleSystem(NS.options.systemParams);
+	if(NS.options.renderer == 'default') NS.renderer = new NS.defaultRenderer(NS.options.renderOptions);
+	
+	$window.on('resize', NS.resize);
+}
+
+NodeSystem.prototype.defaultRenderer = function(options){
+	var Renderer = this;
+	Renderer.options = $.extend({
+		$elem: (function(){
+			if(!options.$elem){
+				var $canvas = $('canvas');
+				if(!$canvas.length){
+					$canvas = $('<canvas>')
+										.attr({width: $body.width(), height: $body.height() })
+										.appendTo(document.body);
+				}
+				Renderer.$canvas = $canvas;
+				return $canvas;
+			}
+		})()
+	}, options || {})
+	Renderer.context = Renderer.options.$elem[0].getContext('2d');
+	console.log(Renderer.context);
+}
+
+
+
+/*
 var $canvas = $('canvas'),
 		ctx = $canvas[0].getContext('2d'),
 		sys = arbor.ParticleSystem({
@@ -14,6 +55,11 @@ function resize(){
 	width = $canvas.parent().width();
 	height = $canvas.parent().height();
 	$canvas.attr('width', width).attr('height', height);
+}
+
+var Node = function(){
+	this.x;
+	this.y;
 }
 
 $(window).on('resize', resize);
@@ -55,62 +101,8 @@ var myRenderer = {
 sys.renderer = myRenderer;
 
 var nodes = [], edges = [];
-
-$(document).on('click', function(e){
-	addConnectedNode(e.clientX, e.clientY);
-});
-
-function addConnectedNode(x, y){
-	var node = sys.addNode(
-		'p' + new Date().getTime(),
-		{
-			x: x,
-			y: y,
-			mass: (Math.random() * 100) + 10,
-			color: new Color().randomize()
-		}
-	);
-	nodes.push(node);
-	
-	$window.trigger('NodeCreated', node);
-	var i = 0, len = nodes.length - 1, newEdges = [],
-			toNode = nodes[len], fromNode, length, color;
-	while(i < len){
-		fromNode = nodes[i];
-		length = compareArrays(fromNode.data.color.toArray(), toNode.data.color.toArray(), 1);
-		color = fromNode.data.color.averageWith(toNode.data.color);
-		var edge = sys.addEdge(fromNode, toNode, { length: length , color: color });
-		newEdges.push(edge)
-		edges.push(edge);
-		i++;
-	}
-	$window.trigger('EdgeCreated', newEdges);
-}
-
-function networkN(n){
-	var x = Math.floor(width/2), y = Math.floor(height/2);
-	addConnectedNode(x, y);
-	setTimeout(function(){
-		var i = 0;
-		while(i < n){
-			setTimeout(function(){ addConnectedNode(x, y); }, i);
-			i++;
-		}
-	}, 100);
-}
-
-$(document).on('ready', function(){
-	networkN(Math.ceil(Math.random()*25));
-	var amt = 0;
-	setInterval(function(){
-		amt++;
-		$('#fps').html(sys.fps());
-		if(amt%2) addConnectedNode(Math.floor(width/2),Math.floor(height/2));
-	}, 1000);
-	setTimeout(function(){
-		if($('#fps').html() == 'Infinity') location.reload();
-	}, 100);
-});
+*/
+var $window = $(window);
 
 $window.on('NodeCreated', function(){
 	$('#numNodes').html(nodes.length);
