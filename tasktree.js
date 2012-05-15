@@ -114,7 +114,7 @@ Family.prototype.spawn = function(node){
 	
 }
 
-$(document).on('ready', function(){
+$(document).on('readyo', function(){
 	networkN(Math.ceil(Math.random()*25));
 	var amt = 0;
 	setInterval(function(){
@@ -126,6 +126,10 @@ $(document).on('ready', function(){
 	setTimeout(function(){
 		if($('#fps').html() == 'Infinity') location.reload();
 	}, 100);
+});
+
+$canvas.on('click', function(e){
+	console.log(e.ctrlKey);
 });
 
 $window.on('NodeCreated', function(){
