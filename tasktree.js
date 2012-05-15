@@ -7,7 +7,7 @@ var $canvas = $('canvas'),
 			friction: 0
 		}),
 		width, height,
-		bgnd = new Color({r: 0, g: 0, b: 0, a: 0.01}),
+		bgnd = new Color({r: 0, g: 0, b: 0, a: 0.00}),
 		bgndString = bgnd.toRGBAString(),
 		$window = $(window),
 		framesRendered = 0;
@@ -25,15 +25,16 @@ var myRenderer = {
 	init: function(){
 		ctx.lineWidth = 1;
 		ctx.lineCap = 'round';
-		ctx.fillStyle = new Color({r: 255, g: 255, b: 255}).toRGBString();
-		ctx.fillRect(0,0,width,height);
+		//ctx.fillStyle = new Color({r: 255, g: 255, b: 255}).toRGBString();
+		//ctx.fillRect(0,0,width,height);
 	},
 	redraw: function(){
 		ctx.save();
 		//ctx.clearRect(0,0, width, height);
-		ctx.fillStyle = bgndString;
-		ctx.fillRect(0,0,width,height);
+		//ctx.fillStyle = bgndString;
+		//ctx.fillRect(0,0,width,height);
 		
+		/*
     sys.eachEdge(function(edge, pt1, pt2){
 			ctx.beginPath();
 			ctx.moveTo(pt1.x, pt1.y);
@@ -46,7 +47,7 @@ var myRenderer = {
 			ctx.lineWidth = Math.max(1, Math.pow(edge.data.ratio, .3) * 2);
 			ctx.strokeStyle = edge.data.color.toRGBString();
 			ctx.stroke();
-		});
+		});*/
 		
 		sys.eachNode(function(node, pt){
 			ctx.beginPath();
@@ -120,7 +121,7 @@ Family.prototype.spawn = function(node){
 	
 }
 
-$(document).on('readyo', function(){
+$(document).on('ready', function(){
 	networkN(Math.ceil(Math.random()*25));
 	var amt = 0;
 	setInterval(function(){
