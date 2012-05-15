@@ -15,12 +15,45 @@ NodeSystem.prototype.init = function(options){
 		renderOptions: {}
 	}, options || {});
 	NS.sys = arbor.ParticleSystem(NS.options.systemParams);
+	console.log(NS);
 	if(NS.options.renderer == 'default') NS.renderer = new NS.defaultRenderer(NS.options.renderOptions, NS);
 	
 	$window.on('resize', NS.resize);
 }
 
-NodeSystem.prototype.defaultRenderer = function(options, NS){
+var defaultRenderer = NodeSystem.prototype.defaultRenderer = function(options, NS){
+	this.construct.call(this, options, NS);
+}
+
+defaultRenderer.prototype.preFrame = function(){ console.log('preFrame'); };
+defaultRenderer.prototype.inBetween = function(){ console.log('inBetween'); };
+defaultRenderer.prototype.postFrame = function(){ console.log('postFrame'); };
+
+defaultRenderer.prototype.nodeHandler = function(){
+	this.NS.sys.eachNode(function(node, pt){ node.render() });
+};
+
+defaultRenderer.prototype.edgeHandler = function(edge, pt1, pt2 ){ this.NS.sys.eachEdge(function(edge, pt1, pt2){ edge.render(pt1, pt2) }); };
+
+defaultRenderer.prototype.init = function(){ this.ctx.save(); };
+defaultRenderer.prototype.redraw = function(){
+	var exports = {};
+	this.preFrame.call(this, exports);
+	if(this.nodesFirst){
+		this.nodeHandler.call(this, exports);
+		if(this.inBetween) this.inBetween.call(this, exports);
+		this.edgesHandler.call(this, exports);
+	}
+	else{
+		this.edgeHandler.call(this, exports);
+		if(this.inBetween) this.inBetween.call(this, exports);
+		this.nodeHandler.call(this, exports);
+	}
+	this.postFrame.call(this, exports);
+	return exports;
+};
+
+defaultRenderer.prototype.construct = function(options, NS){
 	var Renderer = this;
 	Renderer.options = $.extend({
 		$elem: (function(){
@@ -40,37 +73,7 @@ NodeSystem.prototype.defaultRenderer = function(options, NS){
 	Renderer.context = Renderer.options.$elem[0].getContext('2d');
 	Renderer.ctx = Renderer.context;
 	Renderer.NS = NS;
-}
-
-var R = NodeSystem.prototype.defaultRenderer;
-console.log('')
-R.preFrame = function(){ console.log('preFrame'); };
-R.inBetween = function(){ console.log('inBetween'); };
-R.postFrame = function(){ console.log('postFrame'); };
-R.nodeHandler = function(){
-	R.NS.sys.eachNode(function(node, pt){ node.render() });
-};
-R.edgeHandler = function(){
-	R.NS.sys.eachEdge(function(edge, pt1, pt2){ edge.render(pt1, pt2) });
-};
-R.init = function(){
-	this.ctx.save();
-};
-R.redraw = function(){
-	var exports = {};
-	this.preFrame.call(this, exports);
-	if(this.nodesFirst){
-		this.nodeHandler.call(this, exports);
-		if(this.inBetween) this.inBetween.call(this, exports);
-		this.edgesHandler.call(this, exports);
-	}
-	else{
-		this.edgesHandler.call(this, exports);
-		if(this.inBetween) this.inBetween.call(this, exports);
-		this.nodeHandler.call(this, exports);
-	}
-	this.postFrame.call(this, exports);
-	return exports;
+	Renderer.NS.sys.renderer = this;
 };
 
 
