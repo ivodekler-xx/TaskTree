@@ -4,6 +4,10 @@ var $window = $(window),
 		$body = $(document.body);
 
 function NodeSystem(options){
+	this.init.call(this, options);
+}
+
+NodeSystem.prototype.init = function(options){
 	var NS = this;
 	NS.options = $.extend({
 		systemParams: {},
@@ -11,12 +15,12 @@ function NodeSystem(options){
 		renderOptions: {}
 	}, options || {});
 	NS.sys = arbor.ParticleSystem(NS.options.systemParams);
-	if(NS.options.renderer == 'default') NS.renderer = new NS.defaultRenderer(NS.options.renderOptions);
+	if(NS.options.renderer == 'default') NS.renderer = new NS.defaultRenderer(NS.options.renderOptions, NS);
 	
 	$window.on('resize', NS.resize);
 }
 
-NodeSystem.prototype.defaultRenderer = function(options){
+NodeSystem.prototype.defaultRenderer = function(options, NS){
 	var Renderer = this;
 	Renderer.options = $.extend({
 		$elem: (function(){
@@ -31,10 +35,43 @@ NodeSystem.prototype.defaultRenderer = function(options){
 				return $canvas;
 			}
 		})()
-	}, options || {})
+	}, options || {});
+	
 	Renderer.context = Renderer.options.$elem[0].getContext('2d');
-	console.log(Renderer.context);
+	Renderer.ctx = Renderer.context;
+	Renderer.NS = NS;
 }
+
+var R = NodeSystem.prototype.defaultRenderer;
+console.log('')
+R.preFrame = function(){ console.log('preFrame'); };
+R.inBetween = function(){ console.log('inBetween'); };
+R.postFrame = function(){ console.log('postFrame'); };
+R.nodeHandler = function(){
+	R.NS.sys.eachNode(function(node, pt){ node.render() });
+};
+R.edgeHandler = function(){
+	R.NS.sys.eachEdge(function(edge, pt1, pt2){ edge.render(pt1, pt2) });
+};
+R.init = function(){
+	this.ctx.save();
+};
+R.redraw = function(){
+	var exports = {};
+	this.preFrame.call(this, exports);
+	if(this.nodesFirst){
+		this.nodeHandler.call(this, exports);
+		if(this.inBetween) this.inBetween.call(this, exports);
+		this.edgesHandler.call(this, exports);
+	}
+	else{
+		this.edgesHandler.call(this, exports);
+		if(this.inBetween) this.inBetween.call(this, exports);
+		this.nodeHandler.call(this, exports);
+	}
+	this.postFrame.call(this, exports);
+	return exports;
+};
 
 
 
