@@ -21,8 +21,10 @@ $.extend(NodeSystem.prototype, {
 	},
 	defaultRenderer: function(options, NS){
 		this.construct.call(this, options, NS);
+	},
+	addNodes: function(nodes){
+		
 	}
-	
 });
 
 $.extend(NodeSystem.prototype.defaultRenderer.prototype, {
