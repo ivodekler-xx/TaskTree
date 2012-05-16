@@ -8,9 +8,11 @@ function Color(options){
 }
 
 Color.prototype.randomize = function(){
-	this.r = Math.floor(Math.random() * 256);
-	this.g = Math.floor(Math.random() * 256);
-	this.b = Math.floor(Math.random() * 256);
+	var i = ['r', 'g', 'b'], j = 0;
+	for(index in i){
+		this[i[index]] = Math.floor(Math.random() * 256);	
+		j++;
+	}
 	return this;
 }
 
