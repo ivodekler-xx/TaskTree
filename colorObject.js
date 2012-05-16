@@ -14,6 +14,10 @@ Color.prototype.randomize = function(){
 	return this;
 }
 
+Color.prototype.invert = function(){
+	return new Color({r: 255 - this.options.r, g: 255 - this.options.g, b: 255 - this.options.b });
+}
+
 Color.prototype.toRGBString = function(){
 	return 'rgb(' + [this.options.r, this.options.g, this.options.b].join(',') + ')';
 }
