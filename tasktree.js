@@ -10,11 +10,13 @@ function anotherRenderer(){
 $.extend(anotherRenderer.prototype, NodeSystem.prototype.defaultRenderer.prototype);
 
 if(confirm('init?')){
-	var hoi = new NodeSystem({/*renderer: new anotherRenderer(),*/ renderOptions: { bgnd: new Color().randomize() }});
-	var n = new Node(hoi, {mass: 10, x: 200, y: 200 });
+	var ns = new NodeSystem({renderOptions: { bgnd: new Color().randomize() }});
+	//var n = new Node(ns, {mass: 10, x: 200, y: 200 });
+	var o = new Node(ns, {mass: 20, p: { x: 300, y: 100}, color: new Color({r: 255, g: 0, b: 0}).invert() });
+	var q = new Node(ns, {mass: 20, p: { x: 500, y: 100}, color: new Color({r: 255, g: 0, b: 0}).invert() });
 	setTimeout(function(){
-		var o = new Node(hoi, {mass: 20, x: 300, y: 100 });
-		var e = new Edge(hoi, o._ref, n._ref);
+		
+		//var e = new Edge(ns, o._ref, n._ref);
 	},1000);
 	//hoi.sys.addEdge('a')
 }
@@ -42,3 +44,13 @@ $window.on('EdgeCreated', function(){
 	$('#numEdges').html(edges.length);
 });
 */
+
+//function compareArrays(arr1, arr2, power){
+//	if(!power) power = 1;
+//	var returnVal = 0, i = 0, len = arr1.length;
+//	while(i < len){
+//		returnVal += Math.pow(Math.max(arr1[i], arr2[i]) - Math.min(arr1[i], arr2[i]), power);
+//		i++;
+//	}
+//	return returnVal;
+//}

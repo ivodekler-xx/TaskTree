@@ -12,18 +12,54 @@ $.extend(NodeSystem.prototype, {
 		$.extend(this, $.extend({
 			systemParams: {},
 			renderer: 'default',
-			renderOptions: {}
+			renderOptions: {},
+			appendQueue: {nodes: [], edges: [] },
 		}, options || {}));
 		NS.sys = arbor.ParticleSystem(NS.systemParams);
 		if(NS.renderer == 'default') NS.renderer = new NS.defaultRenderer(NS.renderOptions, NS);
 		if(NS.debug) console.log(NS);
 		$window.on('resize', NS.resize);
 	},
-	defaultRenderer: function(options, NS){
-		this.construct.call(this, options, NS);
+	defaultRenderer: function(options, NS){ this.construct.call(this, options, NS); },
+	addNodes: function(){
+		for(var index in arguments) this.appendQueue.nodes.push(arguments[index]);
+		this.renderer.doBeforeDraw = this.appendNew;
+		if(this.sys.fps() == Infinity ) this.sys.start();
+		return this;
 	},
-	addNodes: function(nodes){
-		
+	addEdges: function(){
+		this.appendQueue.edges.concat(arguments);
+		this.renderer.doBeforeDraw = this.appendNew;
+		if(this.sys.fps() == Infinity ) this.sys.start();
+		return this;
+	},
+	appendNew: function(){
+		console.log(this.appendQueue, this.appendQueue.nodes.length);
+		if(this.appendQueue.nodes.length < 2){
+			console.log('attempting to fail!');
+			var node = this.appendQueue.nodes[0].pop();
+			node._ref = this.sys.addNode(node.name, {x: node.p.x, y: node.p.y, mass: node.mass, self: node });
+		}else if(this.appendQueue.edges.length < 2){
+			if(!this.appendQueue.edges.length) {
+				var nodes = {};
+				for(var index in this.appendQueue.nodes){ var node = this.appendQueue.nodes[index]; nodes[index] = {x: node.p.x, y: node.p.y, mass: self.mass, self: node} };
+				console.log(nodes);	
+				this.sys.graft({nodes: nodes});
+				while(this.appendQueue.nodes.length){
+					node = this.appendQueue.nodes.pop();
+					console.log(node, node.name);
+					node._ref = this.sys.getNode(node.name);
+					if(!node._ref) debugger;
+				}
+			}
+			else{
+				//add single edge
+			}
+		}
+		else{
+			console.log('hoi!', this.appendQueue);
+		}
+		this.renderer.doBeforeDraw = function(){};
 	}
 });
 
@@ -39,9 +75,11 @@ $.extend(NodeSystem.prototype.defaultRenderer.prototype, {
 		var Renderer = this;
 		this.NS.sys.eachEdge(function(edge, pt1, pt2){ edge.data.self.render.call(edge.data.self, pt1, pt2, Renderer, edge); });
 	},
+	doBeforeDraw: function(){},
 	init: function(){ this.ctx.save(); },
 	redraw: function(){
 		var exports = {};
+		this.doBeforeDraw.call(this.NS);
 		this.preFrame.call(this, exports);
 		if(this.nodesFirst){
 			this.nodeHandler.call(this, exports);
@@ -100,16 +138,14 @@ $.extend( Node.prototype, {
 			this,
 			$.extend(
 				{
-					x: 0,
-					y: 0,
+					p: { x: 0, y: 0 },
 					mass: 1,
-					name: new Date().getTime()
+					name: 'n' + new Date().getTime()
 				},
 				options || {}
 			)
 		);
-		this.NS = NS;
-		this._ref = NS.sys.addNode(this.name, {x: this.x, y: this.y, self: this });
+		this.NS = NS.addNodes(this);
 	},
 	remove: function(){
 	//	NS.
@@ -137,7 +173,8 @@ $.extend( Edge.prototype, {
 			mass: 1,
 		}, options));
 		this.NS = NS;
-		this._ref = NS.sys.addEdge(fromNode || new Date().getTime(), toNode || new Date().getTime(), { self: this });
+		NS.addEdges()
+		//this._ref = NS.sys.addEdge(fromNode || new Date().getTime(), toNode || new Date().getTime(), { self: this });
 	},
 	remove: function(){
 		//need ref to sys here

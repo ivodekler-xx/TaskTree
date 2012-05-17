@@ -1,55 +1,21 @@
 function Color(options){
-	$.extend(this, $.extend({
-		r: 0,
-		g: 0,
-		b: 0,
-		a: 1
-	}, options || {}));
+	this.construct(options);
 }
 
-Color.prototype.randomize = function(){
-	var i = ['r', 'g', 'b'], j = 0;
-	for(index in i){
-		this[i[index]] = Math.floor(Math.random() * 256);	
-		j++;
+(function(){
+	this.construct = function(options){ $.extend(this, $.extend({ r: 0, g: 0, b: 0, a: 1 }, options || {} )); };
+	this.invert = function(){ var i = ['r', 'g', 'b'], index; for(index in i){ this[i[index]] = 255 - this[i[index]]; } return this };
+	this.randomize = function(){ console.log('randomizer called'); var i = ['r', 'g', 'b'], index; for(index in i){ this[i[index]] = Math.floor(Math.random() * 256 ); } return this; }
+	this.toArray = function(){ return [this.r, this.g, this.b, this.a ]}
+	this.toRGBString = function(){ return 'rgb(' + [this.r, this.g, this.b].join(',') + ')'; }
+	this.toRGBAString = function(){ return 'rgba(' + [this.r, this.g, this.b, this.a].join(',') + ')'; }
+	this.toJSON = function(){ return this.toRGBAString(); };
+	this.averageWith = function(colors){
+		if(colors instanceof Color) colors = [colors];
+		var newColor = new Color({r: this.r, g: this.g, b: this.b }), length = colors.length + 1,
+				i = ['r', 'g', 'b', 'a'],  index, cIndex
+		for(cIndex in colors){ for(index in i){ newColor[i[index]] = colors[cIndex][i[index]]; } }
+		for(index in i){ newColor[i[index]] = Math.floor( newColor[i[index]] / length ); }
+		return newColor;
 	}
-	return this;
-}
-
-Color.prototype.invert = function(){
-	return new Color({r: 255 - this.r, g: 255 - this.g, b: 255 - this.b });
-}
-
-Color.prototype.toRGBString = function(){
-	return 'rgb(' + [this.r, this.g, this.b].join(',') + ')';
-}
-
-Color.prototype.toRGBAString = function(){
-	return 'rgba(' + [this.r, this.g, this.b, this.a].join(',') + ')';
-}
-
-Color.prototype.toArray = function(){ return [this.r, this.g, this.b, this.a ]}
-
-Color.prototype.averageWith = function(colors){
-	if(colors instanceof Color) colors = [colors];
-	var r = this.r, g = this.g, b = this.b, a = this.a, length = colors.length + 1, index;
-	for(index in colors){
-		r += colors[index].r;
-		g += colors[index].g;
-		b += colors[index].b;
-		a += colors[index].a;
-	}
-	return new Color({r: Math.floor(r/length), g: Math.floor(g/length), b: Math.floor(b/length), a: Math.floor(a/length) });
-}
-
-function compareArrays(arr1, arr2, power){
-	if(!power) power = 1;
-	var returnVal = 0, i = 0, len = arr1.length;
-	while(i < len){
-		returnVal += Math.pow(Math.max(arr1[i], arr2[i]) - Math.min(arr1[i], arr2[i]), power);
-		i++;
-	}
-	return returnVal;
-}
-
-Color.prototype.toJSON = function(){ return this.toRGBAString(); }
+}).call(Color.prototype);
