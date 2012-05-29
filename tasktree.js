@@ -1,22 +1,21 @@
-// arbor-alea bootstrap:
-var random = Alea();
-var math = Math;
-
-math.random = random;
-
-function anotherRenderer(){
-	NodeSystem.prototype.defaultRenderer.call(this);
-}
-$.extend(anotherRenderer.prototype, NodeSystem.prototype.defaultRenderer.prototype);
+//// arbor-alea bootstrap:
+//var random = Alea();
+//var math = Math;
+//
+//math.random = random;
+//
+//function anotherRenderer(){
+//	NodeSystem.prototype.defaultRenderer.call(this);
+//}
+//$.extend(anotherRenderer.prototype, NodeSystem.prototype.defaultRenderer.prototype);
 
 if(confirm('init?')){
 	var ns = new NodeSystem({renderOptions: { bgnd: new Color().randomize() }});
-	//var n = new Node(ns, {mass: 10, x: 200, y: 200 });
-	var o = new Node(ns, {mass: 20, p: { x: 300, y: 100}, color: new Color({r: 255, g: 0, b: 0}).invert() });
+	var o = new Node(ns, {name: 'ivo', mass: 20, color: new Color({r: 255, g: 0, b: 0}).invert(), p: { x: 300, y: 100} });
 	var q = new Node(ns, {mass: 20, p: { x: 500, y: 100}, color: new Color({r: 255, g: 0, b: 0}).invert() });
 	setTimeout(function(){
 		
-		//var e = new Edge(ns, o._ref, n._ref);
+		var e = new Edge(ns, o.name, q.name);
 	},1000);
 	//hoi.sys.addEdge('a')
 }

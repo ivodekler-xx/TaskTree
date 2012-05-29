@@ -1,3 +1,8 @@
+function sniff(){
+	console.log(this, arguments);
+	if(arguments[1] && confirm('debug?')) debugger;
+}
+
 var $window = $(window),
 		$document = $(document),
 		$body = $(document.body);
@@ -15,6 +20,7 @@ $.extend(NodeSystem.prototype, {
 			renderOptions: {},
 			appendQueue: {nodes: [], edges: [] },
 		}, options || {}));
+		if(!window.arbor) runArbor();
 		NS.sys = arbor.ParticleSystem(NS.systemParams);
 		if(NS.renderer == 'default') NS.renderer = new NS.defaultRenderer(NS.renderOptions, NS);
 		if(NS.debug) console.log(NS);
@@ -22,6 +28,7 @@ $.extend(NodeSystem.prototype, {
 	},
 	defaultRenderer: function(options, NS){ this.construct.call(this, options, NS); },
 	addNodes: function(){
+		sniff.call(this, arguments);
 		for(var index in arguments) this.appendQueue.nodes.push(arguments[index]);
 		this.renderer.doBeforeDraw = this.appendNew;
 		if(this.sys.fps() == Infinity ) this.sys.start();
@@ -34,7 +41,21 @@ $.extend(NodeSystem.prototype, {
 		return this;
 	},
 	appendNew: function(){
+		var toGraft = {nodes: {}, edges: {} };
 		console.log(this.appendQueue, this.appendQueue.nodes.length);
+		for(var index in this.appendQueue.nodes){
+			var node = this.appendQueue.nodes[index];
+			console.log(node.name);
+			toGraft.nodes[node.name] = { x: node.p.x, y: node.p.y, mass: node.mass, self: node};
+		}
+		for(var index in this.appendQueue.edges){
+			var edge = this.appendQueue.edges[index];
+			//toGraft.edges[2]
+		}
+		console.log('toGraft: ', toGraft);
+		var grafted = this.sys.graft(toGraft);
+		console.log('grafted: ', grafted);
+		return;
 		if(this.appendQueue.nodes.length < 2){
 			console.log('attempting to fail!');
 			var node = this.appendQueue.nodes[0].pop();
@@ -42,14 +63,14 @@ $.extend(NodeSystem.prototype, {
 		}else if(this.appendQueue.edges.length < 2){
 			if(!this.appendQueue.edges.length) {
 				var nodes = {};
-				for(var index in this.appendQueue.nodes){ var node = this.appendQueue.nodes[index]; nodes[index] = {x: node.p.x, y: node.p.y, mass: self.mass, self: node} };
+				for(var index in this.appendQueue.nodes){ var node = this.appendQueue.nodes[index]; nodes[node.name] = 2; }
 				console.log(nodes);	
-				this.sys.graft({nodes: nodes});
+				console.log();
 				while(this.appendQueue.nodes.length){
 					node = this.appendQueue.nodes.pop();
-					console.log(node, node.name);
 					node._ref = this.sys.getNode(node.name);
-					if(!node._ref) debugger;
+					console.log(node, node.name);
+					//if(!node._ref) debugger;
 				}
 			}
 			else{
@@ -126,6 +147,7 @@ function Node(NS, options){
 
 $.extend( Node.prototype, {
 	render: function(p, renderer){
+		sniff.call(this, arguments, 'render');
 		var ctx = renderer.ctx;
 		ctx.beginPath();
 		ctx.arc(p.x, p.y, /*Math.sqrt*/(this.mass), 0, 2*Math.PI, true);
@@ -140,11 +162,12 @@ $.extend( Node.prototype, {
 				{
 					p: { x: 0, y: 0 },
 					mass: 1,
-					name: 'n' + new Date().getTime()
+					name: 'n' + new Date().getTime() + Math.random().toFixed(2)
 				},
 				options || {}
 			)
-		);
+		)	;
+		sniff.call(this, arguments, 'sniff');
 		this.NS = NS.addNodes(this);
 	},
 	remove: function(){
